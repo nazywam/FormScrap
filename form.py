@@ -65,3 +65,4 @@ class Form:
 		request += "print(r.text)\n"
 
 		return request
+		
