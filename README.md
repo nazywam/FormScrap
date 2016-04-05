@@ -24,8 +24,8 @@ Yes!
 
 ##Screenshots!
 
-![alt](scr1)
+![alt](scr1.png)
 
-![alt](scr2)
+![alt](scr2.png)
 
-![alt](scr3)
+![alt](scr3.png)
