@@ -1,4 +1,4 @@
-import requests, re, sys, pdb, codecs
+import requests, sys, codecs
 from urlparse import urlparse
 from BeautifulSoup import BeautifulSoup
 from form import Form
@@ -20,6 +20,8 @@ def getSite(url, allowedDomain, currentDepth):
 	except requests.exceptions.InvalidURL:
 		print("Could not get url")
 		cachedPages.update({url:False})
+		return
+	except requests.exceptions.InvalidSchema:
 		return
 
 	print(url+' '+str(response.status_code))
@@ -99,4 +101,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
