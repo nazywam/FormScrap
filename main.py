@@ -1,4 +1,6 @@
-import requests, sys, codecs
+#!/usr/bin/python
+
+import requests, sys, codecs, argparse
 from urlparse import urlparse
 from BeautifulSoup import BeautifulSoup
 from form import Form
@@ -57,19 +59,25 @@ def getSite(url, allowedDomain, currentDepth):
 
 def main():
 
-	root = sys.argv[1]
+	parser = argparse.ArgumentParser(prog='main.py')
+	parser.add_argument('URL', help='URL to process')
+	parser.add_argument('-d', metavar='maxDepth', help='specifly max recurrency depth, 1 by default')
+	args = parser.parse_args()
 
+	root = args.URL
+
+	if(args.d != None):
+		maxDepth = args.d
 	try:
-		parsedRoot = urlparse(sys.argv[1])
+		parsedRoot = urlparse(root)
 	except ValueError:
 		print("Invalid URL");
 		exit
 
-
 	#get all pages from specified domain recursively
 	print("Caching pages...")
 	getSite(root, parsedRoot.hostname, 0)
-	print("Finished, got "+str(len(cachedPages.keys()))+" pages")
+	print("Finished, got "+str(len(cachedPages.keys()))+" page(s)")
 
 	#iterate over cachedPages
 	for p in cachedPages.items():
@@ -89,14 +97,16 @@ def main():
 			if(action[0:4] != 'http'):
 				action = url+action
 
-			forms.update({action:Form(f, action, url)})
+			forms.update({action:Form(f, action, url)})	
 
+	print("Exporting form scripts")
 
 	for form in forms.items():
 		f = codecs.open('output/'+form[0].replace('/', '\\')+'.py', 'w+', 'utf-8')
 		script = form[1].generateScript()
 		f.write(script)
 		f.close()
+	print("Succes, exported "+str(len(forms.items()))+" form(s) to output/")
 
 
 if __name__ == "__main__":
