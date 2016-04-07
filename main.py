@@ -17,11 +17,14 @@ forms = {}
 #dict to keep cookies
 cookies = {}
 
+#scrap the pages using this cookie
+cookie = {}
+
 def getSite(url, allowedDomain, currentDepth):
 	
 	#try to get the site from url
 	try: 
-		response = requests.get(url)	
+		response = requests.get(url, cookies=cookie)	
 	except requests.exceptions.InvalidURL:
 		print("Could not get url")
 		cachedPages.update({url:False})
@@ -67,6 +70,7 @@ def main():
 
 	parser = argparse.ArgumentParser(prog='main.py')
 	parser.add_argument('URL', help='URL to process')
+	parser.add_argument('-c', metavar='cookie', help="scrap pages using a cookie, example: admin=1,debug=true")
 	parser.add_argument('-d', metavar='maxDepth', help='specifly max recurrency depth, 1 by default')
 	args = parser.parse_args()
 
@@ -74,6 +78,12 @@ def main():
 
 	if(args.d != None):
 		maxDepth = args.d
+	if(args.c != None):
+		cookiesList = args.c.split(',')
+		for c in cookiesList:
+			x = c.split('=')
+			cookie.update({x[0]:x[1]})
+
 	try:
 		parsedRoot = urlparse(root)
 	except ValueError:
