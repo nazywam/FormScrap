@@ -14,6 +14,9 @@ maxDepth = 1
 #dict to keep the recovered forms
 forms = {}
 
+#dict to keep cookies
+cookies = {}
+
 def getSite(url, allowedDomain, currentDepth):
 	
 	#try to get the site from url
@@ -28,11 +31,14 @@ def getSite(url, allowedDomain, currentDepth):
 
 	print(url+' '+str(response.status_code))
 
-	#add current url to the dict
+	#add current url to dict
 	cachedPages.update({url:response.text})
 
+	#add cookies to dict
+	cookies.update({url:response.cookies})
+
 	#return if we reached our max depth
-	if(currentDepth > maxDepth):
+	if(currentDepth >= maxDepth):
 		return
 
 	#parse the page to look for new links
@@ -76,7 +82,7 @@ def main():
 
 	#get all pages from specified domain recursively
 	print("Caching pages...")
-	getSite(root, parsedRoot.hostname, 0)
+	getSite(root, parsedRoot.hostname, 1)
 	print("Finished, got "+str(len(cachedPages.keys()))+" page(s)")
 
 	#iterate over cachedPages
@@ -97,7 +103,7 @@ def main():
 			if(action[0:4] != 'http'):
 				action = url+action
 
-			forms.update({action:Form(f, action, url)})	
+			forms.update({action:Form(f, action, url, cookies[url])})	
 
 	print("Exporting form scripts")
 
