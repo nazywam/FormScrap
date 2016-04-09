@@ -8,9 +8,6 @@ from form import Form
 #dict to keep all cached pages
 cachedPages = {}
 
-#specify max recurrency depth
-maxDepth = 1
-
 #dict to keep the recovered forms
 forms = {}
 
@@ -20,8 +17,9 @@ cookies = {}
 #scrap the pages using this cookie
 cookie = {}
 
-def getSite(url, allowedDomain, currentDepth):
+def getSite(url, allowedDomain, currentDepth, maxDepth):
 	
+
 	#try to get the site from url
 	try: 
 		response = requests.get(url, cookies=cookie)	
@@ -31,8 +29,6 @@ def getSite(url, allowedDomain, currentDepth):
 		return
 	except requests.exceptions.InvalidSchema:
 		return
-
-	print(url+' '+str(response.status_code))
 
 	#add current url to dict
 	cachedPages.update({url:response.text})
@@ -64,7 +60,7 @@ def getSite(url, allowedDomain, currentDepth):
 		domain = parsed.hostname
 
 		if(domain == allowedDomain and not cachedPages.has_key(fullLink)):
-			getSite(fullLink, allowedDomain, currentDepth+1)
+			getSite(fullLink, allowedDomain, currentDepth+1, maxDepth)
 
 def main():
 
@@ -75,6 +71,10 @@ def main():
 	args = parser.parse_args()
 
 	root = args.URL
+
+	#specify max recurrency depth
+	maxDepth = 1
+
 
 	if(args.d != None):
 		maxDepth = args.d
@@ -92,7 +92,7 @@ def main():
 
 	#get all pages from specified domain recursively
 	print("Caching pages...")
-	getSite(root, parsedRoot.hostname, 1)
+	getSite(root, parsedRoot.hostname, 1, int(maxDepth))
 	print("Finished, got "+str(len(cachedPages.keys()))+" page(s)")
 
 	#iterate over cachedPages
@@ -118,7 +118,7 @@ def main():
 	print("Exporting form scripts")
 
 	for form in forms.items():
-		f = codecs.open('output/'+form[0].replace('/', '\\')+'.py', 'w+', 'utf-8')
+		f = codecs.open('output/'+form[0].replace('/', '_')+'.py', 'w+', 'utf-8')
 		script = form[1].generateScript()
 		f.write(script)
 		f.close()
